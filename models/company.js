@@ -49,15 +49,49 @@ class Company {
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
-  static async findAll() {
-    const companiesRes = await db.query(
-          `SELECT handle,
-                  name,
-                  description,
-                  num_employees AS "numEmployees",
-                  logo_url AS "logoUrl"
-           FROM companies
-           ORDER BY name`);
+  static async findAll(query) {
+    let whereKeys = [];
+    let whereValues = [];
+    let currentIdx = 1;
+    
+    if (query.name) {
+      whereValues.push(`%${query.name}%`);
+      whereKeys.push(`name ILIKE $${currentIdx}`)
+      currentIdx++;
+    } 
+    if (query.minEmployees) {
+      whereValues.push(query.minEmployees);
+      whereKeys.push(`num_employees >= $${currentIdx}`);
+      currentIdx++;
+    }
+    if (query.maxEmployees) {
+      whereValues.push(query.maxEmployees);
+      whereKeys.push(`num_employees <= $${currentIdx}`);
+    }
+    whereKeys = whereKeys.join(' AND ');
+    
+    let companiesRes;
+    if (whereKeys.length > 0) {
+      companiesRes = await db.query(
+            `SELECT handle,
+                    name,
+                    description,
+                    num_employees AS "numEmployees",
+                    logo_url AS "logoUrl"
+              FROM companies
+              WHERE ${whereKeys}
+              ORDER BY name`,
+      whereValues);
+    } else {
+      companiesRes = await db.query(
+        `SELECT handle,
+                    name,
+                    description,
+                    num_employees AS "numEmployees",
+                    logo_url AS "logoUrl"
+              FROM companies
+              ORDER BY name`);
+    }
     return companiesRes.rows;
   }
 

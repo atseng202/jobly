@@ -106,6 +106,14 @@ describe("GET /companies", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(500);
   });
+  
+  test("fails: throws error when min > max", async function () {
+    await db.query("DROP TABLE companies CASCADE");
+    const resp = await request(app)
+        .get("/companies?minEmployees=100&maxEmployees=99")
+        .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(400);
+  });
 });
 
 /************************************** GET /companies/:handle */

@@ -59,8 +59,8 @@ describe("create", function () {
 /************************************** findAll */
 
 describe("findAll", function () {
-  test("works: no filter", async function () {
-    let companies = await Company.findAll();
+  test("works: NO filter", async function () {
+    let companies = await Company.findAll({});
     expect(companies).toEqual([
       {
         handle: "c1",
@@ -84,6 +84,54 @@ describe("findAll", function () {
         logoUrl: "http://c3.img",
       },
     ]);
+  });
+  
+  test("works: WITH ONE filter", async function () {
+    let queryFilter = {
+      name: "1"
+    }
+    let companies = await Company.findAll(queryFilter);
+    expect(companies).toEqual([
+      {
+        handle: "c1",
+        name: "C1",
+        description: "Desc1",
+        numEmployees: 1,
+        logoUrl: "http://c1.img",
+      },
+    ]);
+  });
+  
+  test("works: WITH MULTIPLE filter", async function () {
+    let queryFilter = {
+      name: "C",
+      minEmployees: 2
+    }
+    let companies = await Company.findAll(queryFilter);
+    expect(companies).toEqual([
+      {
+        handle: "c2",
+        name: "C2",
+        description: "Desc2",
+        numEmployees: 2,
+        logoUrl: "http://c2.img",
+      },
+      {
+        handle: "c3",
+        name: "C3",
+        description: "Desc3",
+        numEmployees: 3,
+        logoUrl: "http://c3.img",
+      },
+    ]);
+  });
+  
+  test("works: returns only in bounds ", async function () {
+    let queryFilter = {
+      minEmployees: 20
+    }
+    let companies = await Company.findAll(queryFilter);
+    expect(companies).toEqual([]);
   });
 });
 
