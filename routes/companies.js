@@ -11,6 +11,7 @@ const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
 const companyUpdateSchema = require("../schemas/companyUpdate.json");
+const companyFindSchema = require("../schemas/companyFind.json");
 
 const router = new express.Router();
 
@@ -49,12 +50,33 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  */
 
 router.get("/", async function (req, res, next) {
-  console.log('req query= ', req.query);
-  const { minEmployees, maxEmployees } = req.query;
-  if ((minEmployees && maxEmployees) &&
-    (Number(minEmployees) > Number(maxEmployees))) {
-    throw new BadRequestError("minEmployees must be less than maxEmployees");
+
+  let { minEmployees, maxEmployees, name } = req.query;
+  let comparedQuery = {};
+  if (minEmployees) {
+    comparedQuery.minEmployees = parseInt(minEmployees);
   }
+
+  if (maxEmployees) {
+    comparedQuery.maxEmployees = parseInt(maxEmployees);
+  }
+
+  if (name) {
+    comparedQuery.name = name;
+  }
+  
+  // TODO: Add a jsonschema for validating these keys
+  const validator = jsonschema.validate(comparedQuery, companyFindSchema);
+  if (!validator.valid) {
+    // throw new BadRequestError("minEmployees must be less than maxEmployees");
+    const errs = validator.errors.map((e) => e.stack);
+    throw new BadRequestError(errs);  
+  }
+
+  if ((minEmployees && maxEmployees) &&
+    (parseInt(minEmployees) > parseInt(maxEmployees))) {
+      throw new BadRequestError("minEmployees must be less than maxEmployees");
+    }
   const companies = await Company.findAll(req.query);
   return res.json({ companies });
 });

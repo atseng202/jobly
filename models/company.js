@@ -44,10 +44,10 @@ class Company {
     return company;
   }
 
-  /** Find all companies.
+  /** Find all companies matching query filters if provided.
    * 
    *  building partial WHERE statement based on query params in arg
-   *
+   *  name: case-insensitive companies that contain name phrase
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
 
@@ -70,30 +70,24 @@ class Company {
       whereValues.push(query.maxEmployees);
       whereKeys.push(`num_employees <= $${currentIdx}`);
     }
-    whereKeys = whereKeys.join(' AND ');
-    
-    let companiesRes;
-    if (whereKeys.length > 0) {
-      companiesRes = await db.query(
-            `SELECT handle,
-                    name,
-                    description,
-                    num_employees AS "numEmployees",
-                    logo_url AS "logoUrl"
-              FROM companies
-              WHERE ${whereKeys}
-              ORDER BY name`,
-      whereValues);
-    } else {
-      companiesRes = await db.query(
-        `SELECT handle,
-                    name,
-                    description,
-                    num_employees AS "numEmployees",
-                    logo_url AS "logoUrl"
-              FROM companies
-              ORDER BY name`);
+
+    // WHERE clause should only be added if there were any query filters
+    let whereKeysStr = `WHERE ${whereKeys.join(' AND ')}`;
+    if (whereKeys.length === 0) {
+      whereKeysStr = "";
     }
+
+    const companiesRes = await db.query(
+          `SELECT handle,
+                  name,
+                  description,
+                  num_employees AS "numEmployees",
+                  logo_url AS "logoUrl"
+            FROM companies
+            ${whereKeysStr}
+            ORDER BY name`,
+    whereValues);
+    
     return companiesRes.rows;
   }
 

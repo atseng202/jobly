@@ -10,7 +10,7 @@ describe("sqlForPartialUpdate", function () {
     logoUrl: "logo_url",
   };
 
-  test("Works: dataToUpdate converts camelCased keys to snakecase and values show up", function () {
+  test("Works: dataToUpdate converts several camelCased keys to snakecase and values show up", function () {
     const companyData = { 
       name: "Hey",
       numEmployees: 10, 
@@ -25,6 +25,18 @@ describe("sqlForPartialUpdate", function () {
       });
 
   });
+
+  test("Works: dataToUpdate converts data with only 1 key to update with value", function () {
+    const companyData = {
+      name: "one-name",
+    };
+
+    expect(sqlForPartialUpdate(companyData, jsToSql)).toEqual({
+      setCols: `"name"=$1`,
+      values: ["one-name"],
+    });
+  });
+
 
   test("Throws error when no data given", function () {
     expect(() => {
