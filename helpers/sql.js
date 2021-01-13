@@ -1,6 +1,16 @@
+"use strict";
+
 const { BadRequestError } = require("../expressError");
 
-// THIS NEEDS SOME GREAT DOCUMENTATION.
+/** 
+ * Function takes dataToUpdate keys and returns a new object
+ * where the keys are *setCols*, a string of columns to update with 
+ * parameterized/sanitized queries, and *values*, to update the 
+ * table columns with
+ * 
+ * dataToUpdate: the columns of table model mapped with new values to update in db
+ * jsToSql: maps table columns that are camelCase to their snake_case strings 
+ **/  
 
 function sqlForPartialUpdate(dataToUpdate, jsToSql) {
   const keys = Object.keys(dataToUpdate);
