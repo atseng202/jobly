@@ -11,6 +11,7 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
+  goodToken
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -29,11 +30,19 @@ describe("POST /companies", function () {
     numEmployees: 10,
   };
 
-  test("ok for users", async function () {
+  const newCompanyWontWork = {
+    handle: "nope",
+    name: "New2",
+    logoUrl: "http://new2.img",
+    description: "DescNew2",
+    numEmployees: 10,
+  };
+
+  test("ok for users who are admin", async function () {
     const resp = await request(app)
         .post("/companies")
         .send(newCompany)
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.statusCode).toEqual(201);
     expect(resp.body).toEqual({
       company: newCompany,
@@ -47,7 +56,7 @@ describe("POST /companies", function () {
           handle: "new",
           numEmployees: 10,
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.statusCode).toEqual(400);
   });
 
@@ -58,10 +67,21 @@ describe("POST /companies", function () {
           ...newCompany,
           logoUrl: "not-a-url",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.statusCode).toEqual(400);
   });
+
+  // pessimistic test
+  test("unauthorized request when not admin", async function () {
+    const resp = await request(app)
+      .post("/companies")
+      .send(newCompanyWontWork)
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+  //end
 });
+
 
 /************************************** GET /companies */
 
@@ -119,7 +139,7 @@ describe("GET /companies", function () {
       ],
     });
   });
-  
+
   test("fails: test next() handler", async function () {
     // there's no normal failure event which will cause this route to fail ---
     // thus making it hard to test that the error-handler works with it. This
@@ -138,6 +158,7 @@ describe("GET /companies", function () {
         .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(400);
   });
+  //end
 });
 
 /************************************** GET /companies/:handle */
@@ -173,18 +194,19 @@ describe("GET /companies/:handle", function () {
     const resp = await request(app).get(`/companies/nope`);
     expect(resp.statusCode).toEqual(404);
   });
+  //end
 });
 
 /************************************** PATCH /companies/:handle */
 
 describe("PATCH /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admin users", async function () {
     const resp = await request(app)
         .patch(`/companies/c1`)
         .send({
           name: "C1-new",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.body).toEqual({
       company: {
         handle: "c1",
@@ -211,7 +233,7 @@ describe("PATCH /companies/:handle", function () {
         .send({
           name: "new nope",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.statusCode).toEqual(404);
   });
 
@@ -221,7 +243,7 @@ describe("PATCH /companies/:handle", function () {
         .send({
           handle: "c1-new",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.statusCode).toEqual(400);
   });
 
@@ -231,18 +253,19 @@ describe("PATCH /companies/:handle", function () {
         .send({
           logoUrl: "not-a-url",
         })
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.statusCode).toEqual(400);
   });
+  //end
 });
 
 /************************************** DELETE /companies/:handle */
 
 describe("DELETE /companies/:handle", function () {
-  test("works for users", async function () {
+  test("works for admin users", async function () {
     const resp = await request(app)
         .delete(`/companies/c1`)
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.body).toEqual({ deleted: "c1" });
   });
 
@@ -255,7 +278,8 @@ describe("DELETE /companies/:handle", function () {
   test("not found for no such company", async function () {
     const resp = await request(app)
         .delete(`/companies/nope`)
-        .set("authorization", `Bearer ${u1Token}`);
+        .set("authorization", `Bearer ${goodToken}`);
     expect(resp.statusCode).toEqual(404);
   });
+  //end
 });
