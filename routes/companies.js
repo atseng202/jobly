@@ -44,6 +44,8 @@ router.post("/", ensureLoggedIn, async function (req, res, next) {
  * - nameLike (will find case-insensitive, partial matches)
  *
  * Authorization required: none
+ * 
+ * throws bad req err if minEmps > maxEmps
  */
 
 router.get("/", async function (req, res, next) {

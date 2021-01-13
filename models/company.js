@@ -45,6 +45,8 @@ class Company {
   }
 
   /** Find all companies.
+   * 
+   *  building partial WHERE statement based on query params in arg
    *
    * Returns [{ handle, name, description, numEmployees, logoUrl }, ...]
    * */
