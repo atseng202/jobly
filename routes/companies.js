@@ -65,10 +65,9 @@ router.get("/", async function (req, res, next) {
     comparedQuery.name = name;
   }
   
-  // TODO: Ask how we could have used this validator better
-  // Right now we have to convert all query numbers into integers ourselves
-  // and then don't know how to check if minEmployee > maxEmployee
-  // unless we do it outside of validator
+  // TODO: Add regex to validator to make sure min and maxEmployees are
+  // actual integers [0-9], then validate query, and do the same check that
+  // min <= max as before
   const validator = jsonschema.validate(comparedQuery, companyFindSchema);
   if (!validator.valid) {
     // throw new BadRequestError("minEmployees must be less than maxEmployees");

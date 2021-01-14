@@ -2,6 +2,12 @@ const jwt = require("jsonwebtoken");
 const { createToken } = require("./tokens");
 const { SECRET_KEY } = require("../config");
 
+/************************************** createToken */
+
+// works: not admin
+// works: admin
+// works: default no admin
+
 describe("createToken", function () {
   test("works: not admin", function () {
     const token = createToken({ username: "test", is_admin: false });

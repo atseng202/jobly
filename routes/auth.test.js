@@ -18,6 +18,12 @@ afterAll(commonAfterAll);
 
 /************************************** POST /auth/token */
 
+// works
+// unauth with non-existent user
+// unauth with wrong password
+// bad request with missing data
+// bad request with invalid data
+
 describe("POST /auth/token", function () {
   test("works", async function () {
     const resp = await request(app)
@@ -72,6 +78,10 @@ describe("POST /auth/token", function () {
 });
 
 /************************************** POST /auth/register */
+
+// works for anon
+// bad request with missing fields
+// bad request with invalid data 
 
 describe("POST /auth/register", function () {
   test("works for anon", async function () {

@@ -21,6 +21,10 @@ afterAll(commonAfterAll);
 
 /************************************** authenticate */
 
+// works
+// unauth if no such user
+// unauth if wrong password
+
 describe("authenticate", function () {
   test("works", async function () {
     const user = await User.authenticate("u1", "password1");
@@ -53,6 +57,10 @@ describe("authenticate", function () {
 });
 
 /************************************** register */
+
+// works
+// works: adds admin
+// bad request with dup data
 
 describe("register", function () {
   const newUser = {
@@ -107,6 +115,8 @@ describe("register", function () {
 
 /************************************** findAll */
 
+// works
+
 describe("findAll", function () {
   test("works", async function () {
     const users = await User.findAll();
@@ -131,6 +141,9 @@ describe("findAll", function () {
 
 /************************************** get */
 
+// works
+// not found if no such user
+
 describe("get", function () {
   test("works", async function () {
     let user = await User.get("u1");
@@ -154,6 +167,11 @@ describe("get", function () {
 });
 
 /************************************** update */
+
+// works
+// works: set password
+// not found if no such user
+// bad request if no data
 
 describe("update", function () {
   const updateData = {
@@ -210,6 +228,9 @@ describe("update", function () {
 });
 
 /************************************** remove */
+
+// works
+// not found if no such user
 
 describe("remove", function () {
   test("works", async function () {

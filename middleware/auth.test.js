@@ -14,6 +14,11 @@ const { SECRET_KEY } = require("../config");
 const testJwt = jwt.sign({ username: "test", isAdmin: false }, SECRET_KEY);
 const badJwt = jwt.sign({ username: "test", isAdmin: false }, "wrong");
 
+/************************************** authenticateJWT */
+
+// works: via header
+// works: no header
+// works: invalid token
 
 describe("authenticateJWT", function () {
   test("works: via header", function () {
@@ -56,6 +61,10 @@ describe("authenticateJWT", function () {
   });
 });
 
+/************************************** ensureLoggedIn */
+
+// works
+// unauth if no login
 
 describe("ensureLoggedIn", function () {
   test("works", function () {
@@ -79,6 +88,11 @@ describe("ensureLoggedIn", function () {
   });
 });
 
+/************************************** ensureAdmin */
+
+// works
+// unauth if not admin
+
 describe("ensureAdmin", function () {
   test("works", function () {
     expect.assertions(1);
@@ -100,6 +114,12 @@ describe("ensureAdmin", function () {
     ensureAdmin(req, res, next);
   });
 });
+
+/************************************** ensureAdminOrSelf */
+
+// works for admin
+// works for self
+// unauth if not admin or self
 
 describe("ensureAdminOrSelf", function () {
   test("works for admin", function () {

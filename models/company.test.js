@@ -17,6 +17,9 @@ afterAll(commonAfterAll);
 
 /************************************** create */
 
+// works
+// bad request with dupe
+
 describe("create", function () {
   const newCompany = {
     handle: "new",
@@ -57,6 +60,11 @@ describe("create", function () {
 });
 
 /************************************** findAll */
+
+// works: NO filter
+// works: WITH ONE filter
+// works: WITH MULTIPLE filter
+// works: returns only in bounds 
 
 describe("findAll", function () {
   test("works: NO filter", async function () {
@@ -137,6 +145,8 @@ describe("findAll", function () {
 
 /************************************** get */
 
+// not found if no such company
+
 describe("get", function () {
   test("works", async function () {
     let company = await Company.get("c1");
@@ -160,6 +170,11 @@ describe("get", function () {
 });
 
 /************************************** update */
+
+// works
+// works: null fields
+// not found if no such company
+// bad request with no data
 
 describe("update", function () {
   const updateData = {
@@ -236,6 +251,9 @@ describe("update", function () {
 });
 
 /************************************** remove */
+
+// works
+// not found if no such company
 
 describe("remove", function () {
   test("works", async function () {

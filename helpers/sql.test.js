@@ -2,7 +2,12 @@
 
 const { BadRequestError } = require("../expressError");
 const { sqlForPartialUpdate } = require("./sql");
-// Ask how db knows to connect to test db
+// TODO: Ask how db knows to connect to test db
+
+/************************************** sqlForPartialUpdate */
+
+// Works: dataToUpdate converts several camelCased keys to snakecase and values show up
+// Works: dataToUpdate converts data with only 1 key to update with value
 
 describe("sqlForPartialUpdate", function () {
   const jsToSql = {

@@ -21,6 +21,11 @@ afterAll(commonAfterAll);
 
 /************************************** POST /companies */
 
+// ok for users who are admin
+// bad request with missing data
+// bad request with invalid data
+// unauthorized request when not admin
+
 describe("POST /companies", function () {
   const newCompany = {
     handle: "new",
@@ -84,6 +89,11 @@ describe("POST /companies", function () {
 
 
 /************************************** GET /companies */
+
+// ok for anon
+// produces correct results when given filter
+// fails: test next() handler
+// fails: throws error when min > max
 
 describe("GET /companies", function () {
   test("ok for anon", async function () {
@@ -162,6 +172,10 @@ describe("GET /companies", function () {
 
 /************************************** GET /companies/:handle */
 
+// works for anon
+// works for anon: company w/o jobs
+// not found for no such company
+
 describe("GET /companies/:handle", function () {
   test("works for anon", async function () {
     const resp = await request(app).get(`/companies/c1`);
@@ -197,6 +211,13 @@ describe("GET /companies/:handle", function () {
 });
 
 /************************************** PATCH /companies/:handle */
+
+// works for admin users
+// unauth for anon
+// unauth for logged in user
+// not found on no such company
+// bad request on handle change attempt
+// bad request on invalid data
 
 describe("PATCH /companies/:handle", function () {
   test("works for admin users", async function () {
@@ -269,6 +290,11 @@ describe("PATCH /companies/:handle", function () {
 });
 
 /************************************** DELETE /companies/:handle */
+
+// works for admin users
+// unauth for anon
+// unauth for logged in user
+// not found for no such company
 
 describe("DELETE /companies/:handle", function () {
   test("works for admin users", async function () {

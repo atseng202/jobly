@@ -22,6 +22,12 @@ afterAll(commonAfterAll);
 
 /************************************** POST /users */
 
+// works for admin users: create non-admin
+// works for admin users: create admin
+// unauth for anon
+// bad request if missing data
+// bad request if invalid data
+
 describe("POST /users", function () {
   test("works for admin users: create non-admin", async function () {
     const resp = await request(app)
@@ -112,6 +118,9 @@ describe("POST /users", function () {
 });
 
 /************************************** GET /users */
+// works for admin users
+// unauth for anon
+// fails: test next() handler
 
 describe("GET /users", function () {
   test("works for admin users", async function () {
@@ -171,6 +180,11 @@ describe("GET /users", function () {
 });
 
 /************************************** GET /users/:username */
+// works for admin users
+// works for user's own info
+// unauth for anon
+// not found if user not found
+// logged in user can't view other user
 
 describe("GET /users/:username", function () {
   test("works for admin users", async function () {
@@ -225,10 +239,16 @@ describe("GET /users/:username", function () {
 });
 
 /************************************** PATCH /users/:username */
+
+// admin users
+// own user
 // anon
-// admin
-// bad data
-// TODO: organize test contexts
+// not found for admin
+// invalid data for admin
+// new password for admin
+// works: own user set new password
+// can't set new password of other user
+
 describe("PATCH /users/:username", () => {
   test("works for admin users", async function () {
     const resp = await request(app)
@@ -347,6 +367,11 @@ describe("PATCH /users/:username", () => {
 });
 
 /************************************** DELETE /users/:username */
+
+// works for admin users
+// works for own user
+// unauth for anon
+// "not found if user missing
 
 describe("DELETE /users/:username", function () {
   test("works for admin users", async function () {
