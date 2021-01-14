@@ -32,16 +32,20 @@ describe("create", function () {
 
   test("works", async function () {
     const job = await Job.create(newJob);
-    expect(job).toEqual(newJob);
+    expect(job).toEqual({
+      ...newJob,
+      id: expect.any(Number)
+    });
 
     const result = await db.query(
-      `SELECT title, salary, equity, company_handle AS "companyHandle"
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
            FROM jobs
            WHERE title = 'job1'`
     );
    
     expect(result.rows).toEqual([
       {
+        id: expect.any(Number),
         title: "job1",
         salary: 150000,
         equity: '0.1',
@@ -68,22 +72,25 @@ describe("findAll", function () {
 
     expect(jobs).toEqual([
       {
+        id: expect.any(Number),
         title: "jobA",
         salary: 100000,
-        equity: '0.0',
-        companyHandle: "c1"
+        equity: "0.0",
+        companyHandle: "c1",
       },
       {
+        id: expect.any(Number),
         title: "jobB",
         salary: 200000,
-        equity: '0.2',
-        companyHandle: "c2"
+        equity: "0.2",
+        companyHandle: "c2",
       },
       {
+        id: expect.any(Number),
         title: "jobC",
         salary: 300000,
         equity: null,
-        companyHandle: "c3"
+        companyHandle: "c3",
       },
     ]);
   });
@@ -95,10 +102,11 @@ describe("findAll", function () {
     let jobs = await Job.findAll(queryFilter);
     expect(jobs).toEqual([
       {
+        id: expect.any(Number),
         title: "jobA",
         salary: 100000,
-        equity: '0.0',
-        companyHandle: "c1"
+        equity: "0.0",
+        companyHandle: "c1",
       },
     ]);
   });
@@ -111,16 +119,18 @@ describe("findAll", function () {
     let jobs = await Job.findAll(queryFilter);
     expect(jobs).toEqual([
       {
+        id: expect.any(Number),
         title: "jobB",
         salary: 200000,
-        equity: '0.2',
-        companyHandle: "c2"
+        equity: "0.2",
+        companyHandle: "c2",
       },
       {
+        id: expect.any(Number),
         title: "jobC",
         salary: 300000,
         equity: null,
-        companyHandle: "c3"
+        companyHandle: "c3",
       },
     ]);
   });
@@ -140,10 +150,11 @@ describe("findAll", function () {
     let jobs = await Job.findAll(queryFilter);
     expect(jobs).toEqual([
       {
+        id: expect.any(Number),
         title: "jobB",
         salary: 200000,
-        equity: '0.2',
-        companyHandle: "c2"
+        equity: "0.2",
+        companyHandle: "c2",
       },
     ]);
   });
@@ -155,25 +166,132 @@ describe("findAll", function () {
     let jobs = await Job.findAll(queryFilter);
     expect(jobs).toEqual([
       {
+        id: expect.any(Number),
         title: "jobA",
         salary: 100000,
-        equity: '0.0',
-        companyHandle: "c1"
+        equity: "0.0",
+        companyHandle: "c1",
       },
       {
+        id: expect.any(Number),
         title: "jobB",
         salary: 200000,
-        equity: '0.2',
-        companyHandle: "c2"
+        equity: "0.2",
+        companyHandle: "c2",
       },
       {
+        id: expect.any(Number),
         title: "jobC",
         salary: 300000,
         equity: null,
-        companyHandle: "c3"
+        companyHandle: "c3",
       },
     ]);
   });
   // END
 });
 
+/************************************** update */
+
+// works
+// works: null fields
+// not found if no such company
+// bad request with no data
+
+describe("update", function () {
+  
+  const updateData = {
+    title: "jobC",
+    salary: 350000,
+    equity: null,
+    companyHandle: "c3",
+  };
+
+  let jobC;
+
+  beforeAll( async function () {
+    const jobCResult = await db.query(
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
+            FROM jobs
+            WHERE title = $1`,
+      ["jobC"]
+    );
+    jobC = jobCResult.rows[0];
+  });
+  
+  test("works", async function () {
+
+
+    let job = await Job.update(jobC.id, updateData);
+
+    expect(job).toEqual({
+      id: jobC.id,
+      ...updateData,
+    });
+
+    const result = await db.query(
+      `SELECT title, salary, equity, company_handle AS "companyHandle"
+           FROM jobs
+           WHERE id = $1`,
+      [jobC.id]
+    );
+    expect(result.rows).toEqual([
+      {
+        title: "jobC",
+        salary: 350000,
+        equity: null,
+        companyHandle: "c3"
+      },
+    ]);
+  });
+
+  test("works: null fields", async function () {
+    const updateDataSetNulls = {
+      title: "jobC",
+      salary: null,
+      equity: null,
+      companyHandle: "c3"
+    };
+
+    let job  = await Job.update(jobC.id, updateDataSetNulls);
+    expect(job).toEqual({
+      id: jobC.id,
+      ...updateDataSetNulls,
+    });
+
+   const result = await db.query(
+     `SELECT id, title, salary, equity, company_handle AS "companyHandle"
+           FROM jobs
+           WHERE id = $1`,
+     [jobC.id]
+   );
+   
+    expect(result.rows).toEqual([
+      {
+        id: jobC.id,
+        title: "jobC",
+        salary: null,
+        equity: null,
+        companyHandle: "c3"
+      }
+    ]);
+  });
+
+  test("not found if no such job", async function () {
+    try {
+      await Job.update(jobC.id + 100, updateData);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+
+  test("bad request with no data", async function () {
+    try {
+      await Job.update(jobC.id, {});
+      fail();
+    } catch (err) {
+      expect(err instanceof BadRequestError).toBeTruthy();
+    }
+  });
+});
