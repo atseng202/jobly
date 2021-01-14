@@ -60,9 +60,6 @@ class Job {
     if (whereKeys.length === 0) {
       whereKeysStr = "";
     }
-    console.log('wherekeys string', whereKeysStr);
-    console.log('where values', whereValues);
-    console.log('where keys', whereKeys);
 
     const jobsRes = await db.query(
           `SELECT title,
@@ -73,7 +70,6 @@ class Job {
             ${whereKeysStr}
             ORDER BY title, salary`,
     whereValues);
-    // console.log('jobsRes in fn = ', jobsRes.rows);
     return jobsRes.rows;
   }
 
