@@ -53,9 +53,23 @@ function ensureAdmin(req, res, next) {
   }
 }
 
+function ensureAdminOrSelf(req, res, next) {
+  console.debug("ensureAdminOrSelf");
+  const user = res.locals.user;
+  try {
+    if (user.username !== req.params.username && !user.isAdmin) {
+      throw new UnauthorizedError("You are not authorized to make changes.")
+    }
+    return next();
+  } catch (err) {
+    return next(err);
+  } 
+}
+
 
 module.exports = {
   authenticateJWT,
   ensureLoggedIn,
-  ensureAdmin
+  ensureAdmin,
+  ensureAdminOrSelf
 };
