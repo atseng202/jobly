@@ -27,6 +27,58 @@ class Job {
     
     return job;
   }
+
+  /** Find all jobs matching query filters if provided.
+   * 
+   * building partial WHERE statement based on query params in arg
+   * title: case-insensitive jobs that contain title phrase
+   * Returns [{ title, salary, equity, companyHandle }, ...]
+   * */
+
+  static async findAll(query) {
+    let whereKeys = [];
+    let whereValues = [];
+    let currentIdx = 1;
+    
+    if (query.title) {
+      whereValues.push(`%${query.title}%`);
+      whereKeys.push(`title ILIKE $${currentIdx}`)
+      currentIdx++;
+    } 
+    if (query.minSalary) {
+      whereValues.push(query.minSalary);
+      whereKeys.push(`salary >= $${currentIdx}`);
+      currentIdx++;
+    }
+    if (query.hasEquity === true) {
+      whereValues.push(0);
+      whereKeys.push(`equity > $${currentIdx}`);
+    }
+
+    // WHERE clause should only be added if there were any query filters
+    let whereKeysStr = `WHERE ${whereKeys.join(' AND ')}`;
+    if (whereKeys.length === 0) {
+      whereKeysStr = "";
+    }
+    console.log('wherekeys string', whereKeysStr);
+    console.log('where values', whereValues);
+    console.log('where keys', whereKeys);
+
+    const jobsRes = await db.query(
+          `SELECT title,
+                  salary,
+                  equity,
+                  company_handle AS "companyHandle"
+            FROM jobs
+            ${whereKeysStr}
+            ORDER BY title, salary`,
+    whereValues);
+    // console.log('jobsRes in fn = ', jobsRes.rows);
+    return jobsRes.rows;
+  }
+
 }
+
+
 
 module.exports = Job;
