@@ -245,81 +245,145 @@ describe("GET /jobs/:id", function () {
   //end
 });
 
-/************************************** PATCH /companies/:handle */
+/************************************** PATCH /jobs/:id */
 
 // works for admin users
 // unauth for anon
 // unauth for logged in user
 // not found on no such company
-// bad request on handle change attempt
-// bad request on invalid data
+// bad request on company_handle change attempt
+// bad request on invalid data i.e. NaN for minSalary
 
-describe("PATCH /companies/:handle", function () {
+// NOTE: jsonschema already validates properties that do not exist and .validate
+// will signal an error
+describe("PATCH /jobs/:id", function () {
+  let jobC;
+
+  beforeAll(async function () {
+    const jobCResult = await db.query(
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
+            FROM jobs
+            WHERE title = $1`,
+      ["jobC"]
+    );
+    jobC = jobCResult.rows[0];
+  });
+
   test("works for admin users", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
+        .patch(`/jobs/${jobC.id}`)
         .send({
-          name: "C1-new",
+          salary: 400000
         })
         .set("authorization", `Bearer ${adminToken}`);
+
     expect(resp.body).toEqual({
-      company: {
-        handle: "c1",
-        name: "C1-new",
-        description: "Desc1",
-        numEmployees: 1,
-        logoUrl: "http://c1.img",
+      job: {
+        id: jobC.id,
+        title: "jobC",
+        salary: 400000,
+        equity: null,
+        companyHandle: "c3"
       },
     });
   });
 
   test("unauth for anon", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          name: "C1-new",
-        });
+      .patch(`/jobs/${jobC.id}`)
+      .send({
+        salary: 400000
+      });
     expect(resp.statusCode).toEqual(401);
   });
 
   test("unauth for logged in user", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          name: "C1-new",
-        })
-        .set("authorization", `Bearer ${u1Token}`);
+      .patch(`/jobs/${jobC.id}`)
+      .send({
+        salary: 400000
+      })
+      .set("authorization", `Bearer ${u1Token}`);
     expect(resp.statusCode).toEqual(401);
   });
 
   test("not found on no such company", async function () {
     const resp = await request(app)
-        .patch(`/companies/nope`)
-        .send({
-          name: "new nope",
-        })
-        .set("authorization", `Bearer ${adminToken}`);
+      .patch(`/jobs/1000000`)
+      .send({
+        salary: 400000,
+      })
+      .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(404);
   });
 
-  test("bad request on handle change attempt", async function () {
+  test("bad request on company_handle change attempt", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          handle: "c1-new",
-        })
-        .set("authorization", `Bearer ${adminToken}`);
+      .patch(`/jobs/${jobC.id}`)
+      .send({
+        company_handle: "c3-new",
+      })
+      .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
 
   test("bad request on invalid data", async function () {
     const resp = await request(app)
-        .patch(`/companies/c1`)
-        .send({
-          logoUrl: "not-a-url",
-        })
-        .set("authorization", `Bearer ${adminToken}`);
+      .patch(`/jobs/${jobC.id}`)
+      .send({
+        salary: "string-instead-of-int-fails",
+      })
+      .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
+  });
+  //end
+});
+
+/************************************** DELETE /jobs/:id */
+
+// works for admin users
+// unauth for anon
+// unauth for logged in user
+// not found for no such job
+
+describe("DELETE /jobs/:id", function () {
+  let jobC;
+
+  beforeAll(async function () {
+    const jobCResult = await db.query(
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
+            FROM jobs
+            WHERE title = $1`,
+      ["jobC"]
+    );
+    jobC = jobCResult.rows[0];
+  });
+
+  test("works for admin users", async function () {
+    const resp = await request(app)
+        .delete(`/jobs/${jobC.id}`)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.body).toEqual({ deleted: `${jobC.id}` });
+  });
+
+  test("unauth for anon", async function () {
+    const resp = await request(app)
+        .delete(`/jobs/${jobC.id}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+  
+  test("unauth for logged in user", async function () {
+    const resp = await request(app)
+      .delete(`/jobs/${jobC.id}`)
+      .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(401);
+  });
+
+  test("not found for no such company", async function () {
+    const resp = await request(app)
+        .delete(`/jobs/1000000`)
+        .set("authorization", `Bearer ${adminToken}`);
+    expect(resp.statusCode).toEqual(404);
   });
   //end
 });
