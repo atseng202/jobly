@@ -51,26 +51,10 @@ router.post("/", ensureLoggedIn, ensureAdmin, async function (req, res, next) {
 
 router.get("/", async function (req, res, next) {
 
-  let { minEmployees, maxEmployees, name } = req.query;
-  let comparedQuery = {};
-  if (minEmployees) {
-    comparedQuery.minEmployees = parseInt(minEmployees);
-  }
-
-  if (maxEmployees) {
-    comparedQuery.maxEmployees = parseInt(maxEmployees);
-  }
-
-  if (name) {
-    comparedQuery.name = name;
-  }
+  let { minEmployees, maxEmployees } = req.query;
   
-  // TODO: Add regex to validator to make sure min and maxEmployees are
-  // actual integers [0-9], then validate query, and do the same check that
-  // min <= max as before
-  const validator = jsonschema.validate(comparedQuery, companyFindSchema);
+  const validator = jsonschema.validate(req.query, companyFindSchema);
   if (!validator.valid) {
-    // throw new BadRequestError("minEmployees must be less than maxEmployees");
     const errs = validator.errors.map((e) => e.stack);
     throw new BadRequestError(errs);  
   }
@@ -91,7 +75,6 @@ router.get("/", async function (req, res, next) {
  * Authorization required: none
  * 
  */
-
 
 router.get("/:handle", async function (req, res, next) {
   const company = await Company.get(req.params.handle);
