@@ -2,7 +2,6 @@
 
 const { BadRequestError } = require("../expressError");
 const { sqlForPartialUpdate } = require("./sql");
-// TODO: Ask how db knows to connect to test db
 
 /************************************** sqlForPartialUpdate */
 

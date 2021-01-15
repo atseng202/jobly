@@ -8,12 +8,14 @@ const {
   commonBeforeEach,
   commonAfterEach,
   commonAfterAll,
+  jobsData
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
 beforeEach(commonBeforeEach);
 afterEach(commonAfterEach);
 afterAll(commonAfterAll);
+
 
 /************************************** create */
 
@@ -191,6 +193,38 @@ describe("findAll", function () {
   // END
 });
 
+/************************************** get */
+
+// works
+// not found if no such job
+// NOTE: database error occurs when integer not given for id but 
+// we are not testing db errors
+
+describe("get", function () {
+  
+  test("works", async function () {
+    const jobCId = jobsData.jobC.id;
+    let job = await Job.get(jobCId);
+    expect(job).toEqual({
+      id: jobCId,
+      title: "jobC",
+      salary: 300000,
+      equity: null,
+      companyHandle: "c3",
+    });
+  });
+
+  test("not found if no such job", async function () {
+    try {
+      await Job.get("100000");
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
+});
+
+
 /************************************** update */
 
 // works
@@ -199,33 +233,20 @@ describe("findAll", function () {
 // bad request with no data
 
 describe("update", function () {
-  
   const updateData = {
     title: "jobC",
     salary: 350000,
     equity: null,
     companyHandle: "c3",
   };
-
-  let jobC;
-
-  beforeAll( async function () {
-    const jobCResult = await db.query(
-      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
-            FROM jobs
-            WHERE title = $1`,
-      ["jobC"]
-    );
-    jobC = jobCResult.rows[0];
-  });
-  
+    
   test("works", async function () {
+    const jobCId = jobsData.jobC.id;
 
-
-    let job = await Job.update(jobC.id, updateData);
+    let job = await Job.update(jobCId, updateData);
 
     expect(job).toEqual({
-      id: jobC.id,
+      id: jobCId,
       ...updateData,
     });
 
@@ -233,7 +254,7 @@ describe("update", function () {
       `SELECT title, salary, equity, company_handle AS "companyHandle"
            FROM jobs
            WHERE id = $1`,
-      [jobC.id]
+      [jobCId]
     );
     expect(result.rows).toEqual([
       {
@@ -246,6 +267,7 @@ describe("update", function () {
   });
 
   test("works: null fields", async function () {
+    const jobC = jobsData.jobC;
     const updateDataSetNulls = {
       title: "jobC",
       salary: null,
@@ -278,6 +300,8 @@ describe("update", function () {
   });
 
   test("not found if no such job", async function () {
+    const jobC = jobsData.jobC;
+
     try {
       await Job.update(jobC.id + 100, updateData);
       fail();
@@ -287,6 +311,8 @@ describe("update", function () {
   });
 
   test("bad request with no data", async function () {
+    const jobC = jobsData.jobC;
+
     try {
       await Job.update(jobC.id, {});
       fail();
@@ -303,18 +329,10 @@ describe("update", function () {
 // not found if no such Job
 
 describe("remove", function () {
-  let jobC;
-  beforeAll( async function () {
-    const jobCResult = await db.query(
-      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
-            FROM jobs
-            WHERE title = $1`,
-      ["jobC"]
-    );
-    jobC = jobCResult.rows[0];
-  });
 
   test("works", async function () {
+    const jobC = jobsData.jobC;
+
     await Job.remove(jobC.id);
     const res = await db.query(
         "SELECT id FROM jobs WHERE id=$1", [jobC.id]);
@@ -322,6 +340,8 @@ describe("remove", function () {
   });
 
   test("not found if no such Job", async function () {
+    const jobC = jobsData.jobC;
+
     try {
       await Job.remove(jobC.id + 100);
       fail();

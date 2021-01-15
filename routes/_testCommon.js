@@ -6,6 +6,7 @@ const Company = require("../models/company");
 const Job = require("../models/job");
 const { createToken } = require("../helpers/tokens");
 
+let jobsRouteData = {};
 async function commonBeforeAll() {
   // noinspection SqlWithoutWhere
   await db.query("DELETE FROM users");
@@ -97,6 +98,9 @@ async function commonBeforeAll() {
     equity: null,
     companyHandle: "c3"
   });
+
+  // Add jobC to object so it can be used in tests
+  jobsRouteData.jobC = jobC;
 }
 
 async function commonBeforeEach() {
@@ -122,5 +126,6 @@ module.exports = {
   commonAfterEach,
   commonAfterAll,
   u1Token,
-  adminToken
+  adminToken,
+  jobsRouteData
 };

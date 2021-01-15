@@ -11,7 +11,8 @@ const {
   commonAfterEach,
   commonAfterAll,
   u1Token,
-  adminToken
+  adminToken,
+  jobsRouteData
 } = require("./_testCommon");
 
 beforeAll(commonBeforeAll);
@@ -214,18 +215,10 @@ describe("GET /jobs", function () {
 // not found for no such job
 
 describe("GET /jobs/:id", function () {
-  let jobC;
-  beforeAll( async function () {
-    const jobCResult = await db.query(
-      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
-            FROM jobs
-            WHERE title = $1`,
-      ["jobC"]
-    );
-    jobC = jobCResult.rows[0];
-  });
-
+  
   test("works for anon", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app).get(`/jobs/${jobC.id}`);
     expect(resp.body).toEqual({
       job: {
@@ -257,19 +250,10 @@ describe("GET /jobs/:id", function () {
 // NOTE: jsonschema already validates properties that do not exist and .validate
 // will signal an error
 describe("PATCH /jobs/:id", function () {
-  let jobC;
-
-  beforeAll(async function () {
-    const jobCResult = await db.query(
-      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
-            FROM jobs
-            WHERE title = $1`,
-      ["jobC"]
-    );
-    jobC = jobCResult.rows[0];
-  });
 
   test("works for admin users", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
         .patch(`/jobs/${jobC.id}`)
         .send({
@@ -289,6 +273,8 @@ describe("PATCH /jobs/:id", function () {
   });
 
   test("unauth for anon", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
       .patch(`/jobs/${jobC.id}`)
       .send({
@@ -298,6 +284,8 @@ describe("PATCH /jobs/:id", function () {
   });
 
   test("unauth for logged in user", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
       .patch(`/jobs/${jobC.id}`)
       .send({
@@ -318,6 +306,8 @@ describe("PATCH /jobs/:id", function () {
   });
 
   test("bad request on company_handle change attempt", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
       .patch(`/jobs/${jobC.id}`)
       .send({
@@ -328,6 +318,8 @@ describe("PATCH /jobs/:id", function () {
   });
 
   test("bad request on invalid data", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
       .patch(`/jobs/${jobC.id}`)
       .send({
@@ -347,19 +339,10 @@ describe("PATCH /jobs/:id", function () {
 // not found for no such job
 
 describe("DELETE /jobs/:id", function () {
-  let jobC;
-
-  beforeAll(async function () {
-    const jobCResult = await db.query(
-      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
-            FROM jobs
-            WHERE title = $1`,
-      ["jobC"]
-    );
-    jobC = jobCResult.rows[0];
-  });
 
   test("works for admin users", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
         .delete(`/jobs/${jobC.id}`)
         .set("authorization", `Bearer ${adminToken}`);
@@ -367,12 +350,16 @@ describe("DELETE /jobs/:id", function () {
   });
 
   test("unauth for anon", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
         .delete(`/jobs/${jobC.id}`);
     expect(resp.statusCode).toEqual(401);
   });
   
   test("unauth for logged in user", async function () {
+    const jobC = jobsRouteData.jobC;
+
     const resp = await request(app)
       .delete(`/jobs/${jobC.id}`)
       .set("authorization", `Bearer ${u1Token}`);

@@ -15,6 +15,7 @@ const jobFindSchema = require("../schemas/jobFind.json");
 
 const router = new express.Router();
 
+// TODO: Remove ensureLoggedIn middleware for admins
 
 /** POST / { job } =>  { job }
  *
@@ -22,7 +23,7 @@ const router = new express.Router();
  *
  * Returns { id, title, salary, equity, company_handle }
  *
- * Authorization required: login and admin
+ * Authorization required: login as admin
  */
 
 router.post("/",

@@ -1,7 +1,7 @@
 "use strict";
 
 const db = require("../db");
-const { BadRequestError, NotFoundError } = require("../expressError");
+const { NotFoundError } = require("../expressError");
 const { sqlForPartialUpdate } = require("../helpers/sql");
 
 /** Related functions for jobs. */
@@ -40,12 +40,14 @@ class Job {
     let whereValues = [];
     let currentIdx = 1;
 
-    if (query.title) {
+    // NOTE: Can also use length of whereValues instead of keeping track of idx
+    // Better to be explicit with truthy/falsey values
+    if (query.title !== undefined) {
       whereValues.push(`%${query.title}%`);
       whereKeys.push(`title ILIKE $${currentIdx}`);
       currentIdx++;
     }
-    if (query.minSalary) {
+    if (query.minSalary !== undefined) {
       whereValues.push(query.minSalary);
       whereKeys.push(`salary >= $${currentIdx}`);
       currentIdx++;
@@ -110,8 +112,6 @@ class Job {
    * Returns { id, title, salary, equity, companyHandle }
    *
    * Throws NotFoundError if not found.
-   * TODO: Ask for feedback if we should allow for updating a company_handle
-   * on a job (leaning towards no)
    */
 
   static async update(id, data) {
