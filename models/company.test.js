@@ -139,6 +139,7 @@ describe("findAll", function () {
 
 /************************************** get */
 
+// works
 // not found if no such company
 
 describe("get", function () {
@@ -150,6 +151,14 @@ describe("get", function () {
       description: "Desc1",
       numEmployees: 1,
       logoUrl: "http://c1.img",
+      jobs: [
+        {
+          id: expect.any(Number),
+          title: "jobA",
+          salary: 100000,
+          equity: '0.0'
+        }
+      ]
     });
   });
 

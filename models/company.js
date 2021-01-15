@@ -94,7 +94,7 @@ class Company {
   /** Given a company handle, return data about company.
    *
    * Returns { handle, name, description, numEmployees, logoUrl, jobs }
-   *   where jobs is [{ id, title, salary, equity, companyHandle }, ...]
+   *   where jobs is [{ id, title, salary, equity }, ...]
    *
    * Throws NotFoundError if not found.
    **/
@@ -114,6 +114,17 @@ class Company {
 
     if (!company) throw new NotFoundError(`No company: ${handle}`);
 
+    const jobsRes = await db.query(
+          `SELECT id,
+                  title,
+                  salary,
+                  equity
+            FROM jobs
+            WHERE company_handle = $1`,
+      [handle]);
+    
+    company.jobs = jobsRes.rows;
+    
     return company;
   }
 
