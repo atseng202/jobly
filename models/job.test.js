@@ -294,4 +294,39 @@ describe("update", function () {
       expect(err instanceof BadRequestError).toBeTruthy();
     }
   });
+  // END
+});
+
+/************************************** remove */
+
+// works
+// not found if no such Job
+
+describe("remove", function () {
+  let jobC;
+  beforeAll( async function () {
+    const jobCResult = await db.query(
+      `SELECT id, title, salary, equity, company_handle AS "companyHandle"
+            FROM jobs
+            WHERE title = $1`,
+      ["jobC"]
+    );
+    jobC = jobCResult.rows[0];
+  });
+
+  test("works", async function () {
+    await Job.remove(jobC.id);
+    const res = await db.query(
+        "SELECT id FROM jobs WHERE id=$1", [jobC.id]);
+    expect(res.rows.length).toEqual(0);
+  });
+
+  test("not found if no such Job", async function () {
+    try {
+      await Job.remove(jobC.id + 100);
+      fail();
+    } catch (err) {
+      expect(err instanceof NotFoundError).toBeTruthy();
+    }
+  });
 });

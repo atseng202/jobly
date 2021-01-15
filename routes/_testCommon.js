@@ -90,7 +90,6 @@ async function commonBeforeAll() {
     equity: null,
     companyHandle: "c3"
   });
-  console.log('jobC = ', jobC)
 }
 
 async function commonBeforeEach() {

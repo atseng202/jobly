@@ -135,8 +135,7 @@ router.delete(
   async function (req, res, next) {
     await Company.remove(req.params.handle);
     return res.json({ deleted: req.params.handle });
-  }
-);
+  });
 
 
 module.exports = router;
