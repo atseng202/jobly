@@ -113,7 +113,8 @@ describe("findAll", function () {
   test("works: WITH MULTIPLE filter", async function () {
     let queryFilter = {
       name: "C",
-      minEmployees: 2
+      minEmployees: 2,
+      maxEmployees: 2
     }
     let companies = await Company.findAll(queryFilter);
     expect(companies).toEqual([
@@ -123,13 +124,6 @@ describe("findAll", function () {
         description: "Desc2",
         numEmployees: 2,
         logoUrl: "http://c2.img",
-      },
-      {
-        handle: "c3",
-        name: "C3",
-        description: "Desc3",
-        numEmployees: 3,
-        logoUrl: "http://c3.img",
       },
     ]);
   });

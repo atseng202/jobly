@@ -46,7 +46,7 @@ function ensureAdmin(req, res, next) {
   console.debug("ensureAdmin");
   const user = res.locals.user;
   try {
-    if (user && !user.isAdmin) throw new UnauthorizedError();
+    if (user && user.isAdmin !== true) throw new UnauthorizedError();
     return next();
   } catch (err) {
     return next(err);
@@ -57,7 +57,7 @@ function ensureAdminOrSelf(req, res, next) {
   console.debug("ensureAdminOrSelf");
   const user = res.locals.user;
   try {
-    if (user.username !== req.params.username && !user.isAdmin) {
+    if (user.username !== req.params.username && user.isAdmin !== true) {
       throw new UnauthorizedError("You are not authorized to make changes.")
     }
     return next();

@@ -94,6 +94,7 @@ describe("POST /companies", function () {
 // produces correct results when given filter
 // fails: test next() handler
 // fails: throws error when min > max
+// fails: bad query params sent
 
 describe("GET /companies", function () {
   test("ok for anon", async function () {
@@ -165,6 +166,13 @@ describe("GET /companies", function () {
     const resp = await request(app)
         .get("/companies?minEmployees=100&maxEmployees=99")
         .set("authorization", `Bearer ${u1Token}`);
+    expect(resp.statusCode).toEqual(400);
+  });
+  
+  test("fails: bad query params sent", async function () {
+    const resp = await request(app)
+        .get("/companies?minEmployees=hello")
+        .set("authorization", `Bearer ${adminToken}`);
     expect(resp.statusCode).toEqual(400);
   });
   //end

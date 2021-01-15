@@ -89,8 +89,10 @@ router.get("/", async function (req, res, next) {
  *   where jobs is [{ id, title, salary, equity }, ...]
  *
  * Authorization required: none
- * TODO: Add feature so that this route includes all the information about the jobs associated with this company.
+ * TODO: Add feature so that this route includes all the information about the 
+ * jobs associated with this company.
  */
+
 
 router.get("/:handle", async function (req, res, next) {
   const company = await Company.get(req.params.handle);
